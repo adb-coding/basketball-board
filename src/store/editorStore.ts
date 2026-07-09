@@ -42,6 +42,7 @@ interface EditorState {
   beginGesture: () => void;
   movePlayer: (playerId: string, pos: Vec2) => void;
   moveBall: (pos: Vec2) => void;
+  giveBall: (playerId: string) => void;
   updatePlayer: (playerId: string, patch: Partial<Player>) => void;
   addPlayer: (side: Side) => void;
   removePlayer: (playerId: string) => void;
@@ -179,6 +180,11 @@ export const useEditorStore = create<EditorState>((set, get) => {
           : { pos: clampToCourt(pos, play.courtType) };
       }, false),
 
+    giveBall: (playerId) =>
+      mutate((play) => {
+        play.frames[get().frameIndex].ball = { holderId: playerId };
+      }),
+
     updatePlayer: (playerId, patch) =>
       mutate((play) => {
         const p = play.players.find((pl) => pl.id === playerId);
@@ -301,8 +307,9 @@ export const useEditorStore = create<EditorState>((set, get) => {
         const current = play.frames[frameIndex];
         const next = emptyFrameFrom(current);
         // movement actions carry players to their path end in the new frame
+        // (screen included: the screener walks to the screen spot)
         for (const a of current.actions) {
-          if (a.playerId && ['cut', 'dribble', 'freehand'].includes(a.type) && a.points.length > 1) {
+          if (a.playerId && ['cut', 'dribble', 'freehand', 'screen'].includes(a.type) && a.points.length > 1) {
             next.positions[a.playerId] = a.points[a.points.length - 1];
           }
         }

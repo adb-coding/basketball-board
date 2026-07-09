@@ -1,6 +1,7 @@
 import Dexie, { type Table } from 'dexie';
 import type { Play, PlayVideo, Team } from '../models/types';
 import { uid } from '../models/play';
+import { saveAndShare } from './nativeExport';
 
 class BoardDb extends Dexie {
   plays!: Table<Play, string>;
@@ -83,9 +84,9 @@ export async function countVideos(playId: string): Promise<number> {
   return db.videos.where('playId').equals(playId).count();
 }
 
-export function downloadPlayJson(play: Play) {
+export async function downloadPlayJson(play: Play) {
   const blob = new Blob([JSON.stringify(play, null, 2)], { type: 'application/json' });
-  triggerDownload(blob, `${sanitizeFilename(play.name)}.play.json`);
+  await triggerDownload(blob, `${sanitizeFilename(play.name)}.play.json`);
 }
 
 export function parsePlayFile(text: string): Play {
@@ -103,7 +104,9 @@ export function sanitizeFilename(name: string): string {
   return name.trim().replace(/[^a-z0-9-_ ]/gi, '').replace(/\s+/g, '-').toLowerCase() || 'play';
 }
 
-export function triggerDownload(blob: Blob, filename: string) {
+export async function triggerDownload(blob: Blob, filename: string) {
+  // On Android/iOS a download anchor writes nothing — save to disk + share instead.
+  if (await saveAndShare(blob, filename)) return;
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;

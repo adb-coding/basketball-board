@@ -65,7 +65,7 @@ export async function exportGif(ctx: ExportContext, width = 720, fps = 15): Prom
     gif.on('finished', resolve);
     gif.render();
   });
-  triggerDownload(blob, `${sanitizeFilename(play.name)}.gif`);
+  await triggerDownload(blob, `${sanitizeFilename(play.name)}.gif`);
 }
 
 function pickVideoMime(): string {
@@ -140,7 +140,7 @@ export async function exportVideo(ctx: ExportContext, width = 1280): Promise<voi
   }
 
   const ext = mime.startsWith('video/mp4') ? 'mp4' : 'webm';
-  triggerDownload(new Blob(chunks, { type: mime }), `${sanitizeFilename(play.name)}.${ext}`);
+  await triggerDownload(new Blob(chunks, { type: mime }), `${sanitizeFilename(play.name)}.${ext}`);
 }
 
 export async function exportPng(ctx: ExportContext, width = 1600): Promise<void> {
@@ -151,7 +151,7 @@ export async function exportPng(ctx: ExportContext, width = 1600): Promise<void>
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'));
   if (blob) {
     const frame = useEditorStore.getState().frameIndex + 1;
-    triggerDownload(blob, `${sanitizeFilename(play.name)}-frame-${frame}.png`);
+    await triggerDownload(blob, `${sanitizeFilename(play.name)}-frame-${frame}.png`);
   }
 }
 
@@ -193,5 +193,5 @@ export async function exportPdf(ctx: ExportContext): Promise<void> {
     store().setFrameIndex(prevIndex);
   }
 
-  triggerDownload(pdf.output('blob'), `${sanitizeFilename(play.name)}-playbook.pdf`);
+  await triggerDownload(pdf.output('blob'), `${sanitizeFilename(play.name)}-playbook.pdf`);
 }

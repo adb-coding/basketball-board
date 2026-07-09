@@ -78,10 +78,12 @@ function useEditorHotkeys() {
 
 function PlayerPanel() {
   const play = useEditorStore((s) => s.play);
+  const frameIndex = useEditorStore((s) => s.frameIndex);
   const selectedPlayerId = useEditorStore((s) => s.selectedPlayerId);
   const player = play?.players.find((p) => p.id === selectedPlayerId);
   if (!play || !player) return null;
   const s = useEditorStore.getState;
+  const hasBall = play.frames[frameIndex]?.ball.holderId === player.id;
   return (
     <div className="player-panel">
       <span className="muted small">{player.team === 'offense' ? 'Offense' : 'Defense'}</span>
@@ -91,6 +93,16 @@ function PlayerPanel() {
         value={player.label}
         onChange={(e) => s().updatePlayer(player.id, { label: e.target.value })}
       />
+      {player.team === 'offense' && (
+        <button
+          className={`icon-btn ${hasBall ? 'active' : ''}`}
+          title={hasBall ? 'Has the ball' : 'Give the ball to this player'}
+          disabled={hasBall}
+          onClick={() => s().giveBall(player.id)}
+        >
+          🏀
+        </button>
+      )}
       <input
         type="color"
         title="Token color"
