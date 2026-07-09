@@ -1,0 +1,12 @@
+{
+  "name": "Basketball Board — Play Designer",
+  "short_name": "BBall Board",
+  "description": "Draw, animate and share basketball plays (3x3 and 5v5).",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#101318",
+  "theme_color": "#101318",
+  "icons": [
+    { "src": "basketball-board-logo.png", "sizes": "1254x1254", "type": "image/png", "purpose": "any" }
+  ]
+}
